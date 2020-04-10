@@ -115,5 +115,34 @@ description: 此blog搭建过程的记录 -->
     参数涵义可在[此](https://github.com/bubkoo/hexo-toc)查看
     在需要添加目录处添加
 
+#### 利用github分支同步源文件
+[参考文章](https://lulua87.github.io/2017/03/06/hexo_blog_for_github_branch_auto_update/)
+- 思路：在我们博客的远程仓库中新建一个分支，用这个分支来存储博客的源文件，这样我们每次在更新博客并部署之后可以顺手多执行两条命令将源文件同步到远程分支中去
+- 初始化版本库&建立仓库关联
+    通过以下命令查看是否有关联的仓库
+    ```
+    cd blog
+    git remote
+    // origin 若无输出则无关联
+    ```
+    初始化版本库，并建立与远程仓库的关联,这里的 origin 是定义的远程仓库在本地的名字，也可以叫别的，一般命名成 origin
+    ```
+    git init
+    git remote add origin git@github.com:he-zhenghua/he-zhenghua.github.io.git
+
+    git remote
+    // orgin 可看到origin
+    ```
+- 提交文件
+    像正常提交文件那样使用 git add 、 git commit 和 git push 命令提交文件，但这里在 push 的时候要注意新建一个分支去存你要提交的源文件，具体命令是 git push -u origin HEAD:分支名，这里的分支名自己取，HEAD 是版本库的头指针的意思，代表本地版本库里面的最新版本，origin 是刚刚你自己添加远程关联时候的名字，如果你的不是叫 origin 就写成自己定义的名字， -u 参数是为了建立本地分支与远程分支的关联，以后 push 的时候直接输入 git push 就可以了，所以这整个命令的意思就是：把本地最新版本的代码提交到远程仓库的某个分支上去，如果远程仓库还没有这个分支，就在远程仓库里新建一个分支，然后将它跟本地当前分支关联起来。提交之后你就会发现自己的 github 仓库多了一条分支，就是你刚刚提交的那个分支。   至于这里为什么不先在 github 上面手动建立分支，然后再在本地建立关联，是因为如果是远程手动建立分支会自动以 master 分支为模板建立一份一模一样的文件，而我们仓库里面 master 分支存的都是经过 hexo 编译的文件，跟源文件完全不一样，新建这样一个分支之后还要手动把里面的文件删掉，另一个原因是如果在远程手动建分支，你在本地还得手动用 git fetch origin 拉取远程分支的更新，然后再手动建立与分支的关联，比较麻烦，当然如果你是刚开始部署 hexo，github 仓库里面还一点东西都没有的话这些问题都不存在，那就随意。
+    ```
+    git add .
+    git commit -m "add source" //windows下使用双引号
+    git push -u origin HEAD:source
+    ```
+- 设置默认分支
+    去github账号将source设置为默认分支，以后在别的机器上拉取代码的时候能够直接拉取源文件，不用再指定分支
+
+
 
 
