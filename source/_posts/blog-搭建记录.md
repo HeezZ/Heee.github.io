@@ -140,8 +140,31 @@ description: 此blog搭建过程的记录 -->
     git commit -m "add source" //windows下使用双引号
     git push -u origin HEAD:source
     ```
+    以后修改之后执行
+    ```
+    git add .
+    git commit -m "message"
+    git push origin HEAD:source
+    ```
+    来同步
 - 设置默认分支
     去github账号将source设置为默认分支，以后在别的机器上拉取代码的时候能够直接拉取源文件，不用再指定分支
+- **一个坑**
+    主题文件夹下有一个.git文件夹，若直接上传则上传空文件夹，因为一个git仓库中不能包含另一个git仓库,  
+    需要一开始把.git删除，然后再add,commit，若先不小心add、commit了，则需先把主题文件夹中.git山粗，然后移动到其他地方，add、commit一次，再把主题文件夹拷回来，重新
+    ```
+    git add ./themes/yilia //必须精确到文件夹
+    git commit -m "message"
+    ```
+    [参考](http://jartto.wang/2017/12/28/cannot-nest-git-repository/)
+- 同步到新设备
+    - 克隆仓库的sorce分支（已经是默认分支，直接git clone就行）
+    - 再得到的文件夹执行
+        ```
+        npm install
+        ```
+        由于仓库有一个.gitignore文件，里面默认是忽略掉 node_modules文件夹的，也就是说仓库的hexo分支并没有存储该目录，所以需要install下
+    - 需要注意的是每次更新博客之后, 都要把相关修改上传到source分支
 
 
 
