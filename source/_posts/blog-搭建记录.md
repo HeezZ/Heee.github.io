@@ -8,7 +8,7 @@ description: 此blog搭建过程的记录 -->
 <!-- toc -->
 <!--more-->
 
-- 环境: Windows
+- 环境: Windows，hexo + github
 
 #### 安装Node.js 和 git
 - [Node.js](https://nodejs.org/en/): 一路默认安装即可
@@ -108,9 +108,9 @@ description: 此blog搭建过程的记录 -->
       slugify: transliteration
       decodeEntities: false
       anchor:
-      position: after
-      symbol: '#'
-      style: header-anchor
+        position: after
+        symbol: '#'
+        style: header-anchor
     ```
     参数涵义可在[此](https://github.com/bubkoo/hexo-toc)查看
     在需要添加目录处添加
@@ -151,7 +151,7 @@ description: 此blog搭建过程的记录 -->
     去github账号将source设置为默认分支，以后在别的机器上拉取代码的时候能够直接拉取源文件，不用再指定分支
 - **一个坑**
     主题文件夹下有一个.git文件夹，若直接上传则上传空文件夹，因为一个git仓库中不能包含另一个git仓库,  
-    需要一开始把.git删除，然后再add,commit，若先不小心add、commit了，则需先把主题文件夹中.git山粗，然后移动到其他地方，add、commit一次，再把主题文件夹拷回来，重新
+    需要一开始把.git删除，然后再add,commit，若先不小心add、commit了，则需先把主题文件夹中.git删除，然后移动到其他地方，add、commit一次，再把主题文件夹拷回来，重新
     ```
     git add ./themes/yilia //必须精确到文件夹
     git commit -m "message"
@@ -159,12 +159,22 @@ description: 此blog搭建过程的记录 -->
     [参考](http://jartto.wang/2017/12/28/cannot-nest-git-repository/)
 - 同步到新设备
     - 克隆仓库的sorce分支（已经是默认分支，直接git clone就行）
-    - 再得到的文件夹执行
+    - 在克隆得到的文件夹执行
         ```
         npm install
         ```
         由于仓库有一个.gitignore文件，里面默认是忽略掉 node_modules文件夹的，也就是说仓库的hexo分支并没有存储该目录，所以需要install下
     - 需要注意的是每次更新博客之后, 都要把相关修改上传到source分支
+- 总结一下修改一次blog需要执行的命令
+    ```
+    hexo clean
+    hexo g
+    hexo d
+
+    git add .
+    git commit -m "message"
+    git push origin HEAD:source
+    ```
 
 
 
