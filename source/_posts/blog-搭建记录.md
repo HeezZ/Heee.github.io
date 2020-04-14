@@ -2,8 +2,6 @@
 title: blog 搭建记录
 date: 2020-04-09 15:26:29
 tags: 环境搭建
-<!-- toc: true
-description: 此blog搭建过程的记录 -->
 ---
 <!-- toc -->
 <!--more-->
@@ -94,7 +92,27 @@ description: 此blog搭建过程的记录 -->
 
 #### 内容截断和目录
 - 截断
-    在md文件需要截断处添加
+    - 在md文件需要截断处添加
+    ```
+    <!--more-->
+    ```
+    - 修改yilia主题，使其支持description摘要，[参考](https://github.com/litten/hexo-theme-yilia/issues/166#issuecomment-235274516)
+    删除`yilia/layout/_partial/article.ejs`文件中12到19行（必须删除，不可注释），替换为如下
+    ```
+          <% if (index && (post.description || post.excerpt)){ %>
+              <% if (post.description){ %>
+                  <%- post.description %>
+              <% } else { %>
+                  <%- post.excerpt %>
+              <% } %>
+              <% if (theme.excerpt_link) { %>
+                  <a class="article-more-a" href="<%- url_for(post.path) %>#more"><%= theme.excerpt_link %> >></a>
+              <% } %>
+          <% } else { %>
+              <%- post.content %>
+          <% } %>
+    ```
+
 - 目录
     使用[插件](https://github.com/bubkoo/hexo-toc),先安装插件
     ```
@@ -114,6 +132,9 @@ description: 此blog搭建过程的记录 -->
     ```
     参数涵义可在[此](https://github.com/bubkoo/hexo-toc)查看
     在需要添加目录处添加
+    ```
+    <!-- toc -->
+    ```
 
 #### 利用github分支同步源文件
 [参考文章](https://lulua87.github.io/2017/03/06/hexo_blog_for_github_branch_auto_update/)
@@ -175,6 +196,13 @@ description: 此blog搭建过程的记录 -->
     git commit -m "message"
     git push origin HEAD:source
     ```
+#### 问题记录
+- 报错FATAL Port 4000 has been used. Try other port instead
+原因：hexo s命令预览博客效果后使用Control+C关闭  
+解决：
+```shell  
+hexo s -p 5000
+```
 
 
 

@@ -2,9 +2,9 @@
 title: leetcode每日一题
 date: 2020-04-14 11:39:50
 tags: leetcode
+description: leetcode每日一题解析和python实现
 ---
 <!-- toc -->
-<!--more-->
 
 #### 4.14 两数相加Ⅱ
 [leetcode 445 两数相加](https://leetcode-cn.com/problems/add-two-numbers-ii/)   
