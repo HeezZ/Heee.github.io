@@ -196,6 +196,45 @@ tags: 环境搭建
     git commit -m "message"
     git push origin HEAD:source
     ```
+#### 数学公式显示错误问题
+
+[参考](https://www.jianshu.com/p/7ab21c7f0674)
+1. 更换Hexo的markdown渲染引擎，hexo-renderer-kramed引擎是在默认的渲染引擎hexo-renderer-marked的基础上修改了一些bug，两者比较接近，先卸载原来的渲染引擎，再安装新的
+    ```
+    npm uninstall hexo-renderer-marked --save
+    npm install hexo-renderer-kramed --save
+    ```
+2. 更换引擎后行间公式可以正确渲染了，但是这样还没有完全解决问题，行内公式的渲染还是有问题，因为hexo-renderer-kramed引擎也有语义冲突的问题。接下来到博客根目录下，找到node_modules\kramed\lib\rules\inline.js，把第11行的escape变量的值做相应的修改：
+    ```
+    //  escape: /^\\([\\`*{}\[\]()#$+\-.!_>])/,
+    escape: /^\\([`*\[\]()#$+\-.!_>])/
+    ```
+    这一步是在原基础上取消了对\,{,}的转义(escape)。
+    同时把第20行的em变量也要做相应的修改
+    ```
+    //  em: /^\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/,
+    em: /^\*((?:\*\*|[\s\S])+?)\*(?!\*)/
+    ```
+3. 在主题中打开mathjax，进入到主题目录，找到_config.yml配置问题，把mathjax默认的false修改为true，具体如下：
+    ```
+    mathjax:
+      enable: true
+      per_page: true
+    ```
+4. 在文章的Front-matter里打开mathjax开关
+    ```
+    ---
+    title: 背包问题系列
+    date: 2020-04-27 08:38:43
+    mathjax: true
+    tags: 
+        - 动态规划
+        - 算法
+        - leetcode
+    --
+    ```
+    之所以要在文章头里设置开关，是因为考虑只有在用到公式的页面才加载 Mathjax，这样不需要渲染数学公式的页面的访问速度就不会受到影响了。
+
 #### 问题记录
 - 报错FATAL Port 4000 has been used. Try other port instead
 原因：hexo s命令预览博客效果后使用Control+C关闭  
@@ -203,7 +242,3 @@ tags: 环境搭建
 ```shell  
 hexo s -p 5000
 ```
-
-
-
-
