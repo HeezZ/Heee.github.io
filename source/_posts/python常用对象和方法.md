@@ -55,7 +55,44 @@ class LRUCache:
             self.lrucache.popitem(last = False)   
 ```
 
+#### set.pop()
+很多资料显示是随机删除一个，其实不是，一个例子：
+```
+set1 = set([9,4,5,2,6,7,1,8])
+print(set1)
+print(set1.pop())
+print(set1)
+结果:
+{1, 2, 4, 5, 6, 7, 8, 9}
+1
+{2, 4, 5, 6, 7, 8, 9}
+ 
+set1 = set((6,3,1,7,2,9,8,0))
+print(set1)
+print(set1.pop())
+print(set1)
+结果:
+{0, 1, 2, 3, 6, 7, 8, 9}
+0
+{1, 2, 3, 6, 7, 8, 9}
+```
 
+**按照hash值排序 然后删除排序好的最左边一个**  
+时间复杂度O(1)
 
+#### dict.pop()   
+Python 字典 pop() 方法删除字典给定键 key 及对应的值，**返回值**为被删除的值。key 值必须给出。 否则，返回 default 值。  
 
+语法
+```python
+pop(key[,default]) # 必须给出参数，无参数则报错
+```
 
+**注意**：del 语句和 pop() 函数作用相同，pop() 函数有返回值。
+
+时间复杂度：O(1)
+
+##### 与dict.popitem()的区别：
+Python 字典 popitem() 方法返回并删除字典中的最后一对键和值，（最后加入），不接收参数。
+
+如果字典已经为空，却调用了此方法，就报出 KeyError 异常。

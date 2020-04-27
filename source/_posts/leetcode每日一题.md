@@ -274,7 +274,7 @@ s2 ="ab",n2 = 2
 ```
 
 - **分析**  
-此题的关键在于找出循环体，循环体的含义是在每xunhuan1个s1中包含了xunhuan2个s2，找出循环开始的位置。找出之后n1个s1包含s2的数量被分为了三份，循环开始前，循环和循环余下部分，得到s2的个数之后除以n2即可得到答案。循环位置的查找直接看代码。
+此题的关键在于找出循环体，循环体的含义是在每xunhuan1个s1中包含了xunhuan2个s2，找出循环开始的位置。循环体找出之后，n1个s1包含s2的数量被分为了三份，循环开始前，循环和循环余下部分，得到s2的个数之后除以n2即可得到答案。循环位置的查找直接看代码。
 
 - **算法实现**
 ```python
@@ -319,4 +319,454 @@ class Solution:
                         res += 1
                         idx = 0
         return res // n2
+```
+
+#### 4.20 岛屿数量
+
+[leetcode 200 岛屿数量](https://leetcode-cn.com/problems/number-of-islands/)
+
+给你一个由 '1'（陆地）和 '0'（水）组成的的二维网格，请你计算网格中岛屿的数量。
+
+岛屿总是被水包围，并且每座岛屿只能由水平方向和/或竖直方向上相邻的陆地连接形成。
+
+此外，你可以假设该网格的四条边均被水包围。
+
+示例 1:
+```
+输入:
+11110
+11010
+11000
+00000
+输出: 1
+```
+示例 2:
+```
+输入:
+11000
+11000
+00100
+00011
+输出: 3
+解释: 每座岛屿只能由水平和/或竖直方向上相邻的陆地连接而成。
+```
+
+- **分析**  
+    1. 直接深搜或者宽搜即可
+    2. 使用并查集
+- **算法实现**
+    1. dfs
+    ```python
+    class Solution:
+        def numIslands(self, grid: List[List[str]]) -> int:
+            if not grid:
+                return 0
+            row = len(grid)
+            col = len(grid[0])
+            res = 0
+
+            def dfs(i,j):
+                if i<0 or i>=row or j < 0 or j >= col or grid[i][j] == '0':
+                    return
+                grid[i][j] = '0'
+                for m,n in [(i+1,j), (i-1,j), (i, j+1), (i,j-1)]:
+                    # print(m,n)
+                    dfs(m,n)
+            
+            for i in range(row):
+                for j in range(col):
+                    if grid[i][j] == '1':
+                        res += 1
+                        dfs(i,j)
+            # print(grid)
+            return res
+    ```
+    时间复杂度：O(MN)O(MN)，其中 MM 和 NN 分别为行数和列数。
+
+    空间复杂度：O(MN))，在最坏情况下，整个网格均为陆地，深度优先搜索的深度达到 MN。
+  
+    2. 并查集
+    ```python
+    # 并查集实现三个方法，find找到根元素，并且使用递归的方法进行路径压缩，union把两个元素并到一起，使他们有相同的根元素，getcount返回集合数量
+    class Union_Find:
+        def __init__(self,grid):
+            row = len(grid)
+            col = len(grid[0])
+            self.count = 0
+            self.parent = [0 for _ in range(row*col)]
+            self.rank = [0 for _ in range(row*col)]
+            for i in range(row):
+                for j in range(col):
+                    if grid[i][j] == '1':
+                        self.count += 1
+                        self.parent[i * col + j] = i * col + j
+                        
+        def find(self,i):
+            if self.parent[i] != i:
+                self.parent[i] = self.find(self.parent[i])
+            return self.parent[i]
+        
+        def union(self,x,y):
+            rootx = self.find(x)
+            rooty = self.find(y)
+            if rootx != rooty:
+                # 这里的rank用来防止树过深，减小搜索时间，故每次把深度较小的树挂到更深的树上。
+                if self.rank[rootx] < self.rank[rooty]:
+                    rootx, rooty = rooty, rootx
+                self.parent[rooty] = rootx
+                if self.rank[rootx] == self.rank[rooty]:
+                    self.rank[rootx] += 1
+                self.count -= 1
+
+        def getcount(self):
+            return self.count
+
+    class Solution:
+        def numIslands(self, grid: List[List[str]]) -> int:
+            if not grid:
+                return 0
+            uf = Union_Find(grid)
+            row = len(grid)
+            col = len(grid[0])
+            for i in range(row):
+                for j in range(col):
+                    # print(i,j)
+                    if grid[i][j] == '1':
+                        grid[i][j] = '0'
+                        #因为i,j都是递增的方向，故可以只考虑两个方向
+                        for di,dj in ((i+1, j), (i, j+1)):
+                            if 0<=di<row and 0<=dj<col and grid[di][dj] == '1':
+                                # 这里不可置零
+                                # grid[di][dj] = '0'
+                                uf.union(i*col+j, di*col + dj)
+                        # print(uf.parent)
+            return uf.getcount()
+    ```
+    时间复杂度：$O(MN * \alpha(MN))$，其中 MM 和 NN 分别为行数和列数。注意当使用路径压缩（见 find 函数）和按秩合并（见数组 rank）实现并查集时，单次操作的时间复杂度为 $\alpha(MN)$，其中 $\alpha(x)$ 为反阿克曼函数，当自变量 x 的值在人类可观测的范围内（宇宙中粒子的数量）时，函数 $\alpha(x)$的值不会超过 5，因此也可以看成是常数时间复杂度。
+
+    空间复杂度：O(MN)O(MN)，这是并查集需要使用的空间。
+
+#### 4.21 统计「优美子数组」
+
+[leetcode 1248 统计「优美子数组」](https://leetcode-cn.com/problems/count-number-of-nice-subarrays/)
+
+给你一个整数数组 nums 和一个整数 k。
+
+如果某个 连续 子数组中恰好有 k 个奇数数字，我们就认为这个子数组是「优美子数组」。
+
+请返回这个数组中「优美子数组」的数目。
+
+ 
+
+示例 1：
+
+输入：nums = [1,1,2,1,1], k = 3
+输出：2
+解释：包含 3 个奇数的子数组是 [1,1,2,1] 和 [1,2,1,1] 。
+示例 2：
+
+输入：nums = [2,4,6], k = 1
+输出：0
+解释：数列中不包含任何奇数，所以不存在优美子数组。
+示例 3：
+
+输入：nums = [2,2,2,1,2,2,1,2,2,2], k = 2
+输出：16
+
+- **分析**  
+    1. 考虑采用滑动窗口，维护一个长为k的列队idx保存奇数元素的下标
+    2. 窗口的左端点和右端点分别初始化为0
+    3. 右端点右移，遇到奇数元素则加入列队，直到列队长度为k，则此时以右端点为末尾满足条件的连续子数组的数量为idx[0]-left+1
+    4. 此时列队长度已经是k，若右端点遇到偶数，则以此元素为右端点的满足条件的连续子数组数量仍然为idx[0]-left+1
+    5. 若右端点遇到奇数，则将idx的最左端元素弹出，且修改left为：left=idx.popleft()+1，将此奇数压入idx，则以此元素为右端点的满足条件的连续子数组数量仍然为idx[0]-left+1
+
+- **算法实现**
+```python
+class Solution:
+    def numberOfSubarrays(self, nums: List[int], k: int) -> int:
+        from collections import deque
+        left = right = 0
+        res = 0
+        idx = deque()
+        for right in range(len(nums)):
+            if nums[right] & 1 and len(idx)<k:
+                idx.append(right)
+                if len(idx) == k:
+                    res += idx[0]-left+1
+
+            elif nums[right] & 1:
+                left = idx.popleft() + 1
+                idx.append(right)
+                res += idx[0]-left+1
+            else:
+                if len(idx) == k:
+                    res += idx[0]-left+1
+        return res
+```
+- **算法分析**
+    - 时间复杂度：$O(n)$
+    - 空间复杂度：$O(1)$
+
+#### 4.22 二叉树的右视图
+
+[leetcode 199 二叉树的右视图](https://leetcode-cn.com/problems/binary-tree-right-side-view/)
+
+给定一棵二叉树，想象自己站在它的右侧，按照从顶部到底部的顺序，返回从右侧所能看到的节点值。
+
+示例:
+```
+输入: [1,2,3,null,5,null,4]
+输出: [1, 3, 4]
+解释:
+
+   1            <---
+ /   \
+2     3         <---
+ \     \
+  5     4       <---
+```
+
+- **分析**  
+二叉树的层次遍历，每层只取最后一个元素
+
+- **算法实现**  
+```python
+class Solution:
+    def rightSideView(self, root: TreeNode) -> List[int]:
+        if not root:
+            return []
+        res = []
+        stack = [root]
+        while stack:
+            cur = []
+            tmp = []
+            for e in stack:
+                cur.append(e.val)
+                if e.right:
+                    tmp.append(e.right)
+                if e.left:
+                    tmp.append(e.left)
+            res.append(cur)
+            stack = tmp
+        return [n[0] for n in res]
+```
+
+#### 4.23 硬币
+
+[leetcode 面试题 08.11. 硬币](https://leetcode-cn.com/problems/coin-lcci/)
+
+硬币。给定数量不限的硬币，币值为25分、10分、5分和1分，编写代码计算n分有几种表示法。(结果可能会很大，你需要将结果模上1000000007)
+
+示例1:
+```
+ 输入: n = 5
+ 输出：2
+ 解释: 有两种方式可以凑成总金额:
+5=5
+5=1+1+1+1+1
+```
+示例2:
+```
+ 输入: n = 10
+ 输出：4
+ 解释: 有四种方式可以凑成总金额:
+10=10
+10=5+5
+10=5+1+1+1+1+1
+10=1+1+1+1+1+1+1+1+1+1
+```
+
+- **分析** 
+使用动态规划，先初始化可能性为零，0的可能性为一，枚举硬币的可能性，每种硬币的可能性下，dp[i] += dp[i-coin]因为该硬币第一次出现，所以没有重复的可能。dp[i-coin]涵盖了所有dp[i]中有coin时的所有可能性故没有遗漏。
+- **算法实现**
+```python
+class Solution:
+    def waysToChange(self, n: int) -> int:
+        coins = [1, 5, 10, 25]
+        if n <= 0:
+            return 0
+        dp = [1] + [0]*n
+        for coin in coins:
+            for i in range(coin, n+1):
+                dp[i] += dp[i-coin]
+                dp[i] %= 1000000007
+        return dp[-1]
+```
+
+- **算法分析**
+    - 时间复杂度：$O(kn)$，其中k为硬币数量
+    - 空间复杂度：$O(n)$
+
+#### 4.24 数组中的逆序对
+
+[leetcode 面试题51. 数组中的逆序对](https://leetcode-cn.com/problems/shu-zu-zhong-de-ni-xu-dui-lcof/)
+
+在数组中的两个数字，如果前面一个数字大于后面的数字，则这两个数字组成一个逆序对。输入一个数组，求出这个数组中的逆序对的总数。
+
+示例 1:
+```
+输入: [7,5,6,4]
+输出: 5
+```
+- **分析**  
+归并排序，在并入时统计逆序对数量
+
+```python
+class Solution:
+    def reversePairs(self, nums: List[int]) -> int:
+        if not nums:
+            return 0
+        self.res = 0
+        def guibing(left, right):
+            if left == right:
+                return [nums[left]]
+
+            mid = (left + right) >> 1
+            # print(mid)
+            return merge(guibing(left,mid), guibing(mid+1,right))
+
+        def merge(l1, l2):
+            left = 0
+            right = 0
+            r = []
+            while left < len(l1) and right< len(l2):
+                if l1[left] <= l2[right]:
+                    r.append(l1[left])
+                    left += 1
+                else:
+                    r.append(l2[right])
+                    self.res += len(l1)-left
+                    right += 1
+            r.extend(l1[left:])
+            r.extend(l2[right:])
+            # print(l1,l2,self.res)
+            return r
+        
+        r = guibing(0, len(nums)-1)
+        # print(r)
+        return self.res 
+```
+
+- **算法分析**
+    - 时间复杂度：$O(n\log(n))$
+    - 空间复杂度：$O(n)$
+
+#### 4.25 全排列
+
+[leetcode 46 全排列](https://leetcode-cn.com/problems/permutations/)
+
+给定一个 没有重复 数字的序列，返回其所有可能的全排列。
+
+示例:
+```
+输入: [1,2,3]
+输出:
+[
+  [1,2,3],
+  [1,3,2],
+  [2,1,3],
+  [2,3,1],
+  [3,1,2],
+  [3,2,1]
+]
+```
+
+- **分析**
+直接回溯
+
+- **算法实现**
+使用额外空间
+```python
+class Solution:
+        def backtrack(cur):
+            if len(cur) == len(nums):
+                res.append(cur)
+                return
+            for i in range(len(nums)):
+                if not used[i]:
+                    used[i] = 1
+                    backtrack(cur+[nums[i]])
+                    used[i] = 0
+        res = []
+        used = [0 for _ in range(len(nums))]
+        backtrack([])
+        return res
+```
+不使用额外空间
+```python
+class Solution:
+    def permute(self, nums: List[int]) -> List[List[int]]:
+        def backtrack(cur_list, first):
+            if len(cur_list) == len(nums):
+                output.append(cur_list)
+            for i in range(first, len(nums)):
+                nums[first], nums[i] = nums[i], nums[first]
+                backtrack(cur_list+[nums[first]], first+1)
+                nums[first], nums[i] = nums[i], nums[first]
+        output = []
+        backtrack([], 0)
+        return output
+```
+- **算法分析**
+ - 时间复杂度：全排列数量有$n!$种，每种排列需调用n次backtrack函数，故时间复杂度为$O(n*n!)$
+ - 空间复杂度：O(n)，包括递归深度，返回数组，（和used）
+
+ #### 4.26 合并k个排序链表
+
+ [leetcode 23 合并K个排序链表](https://leetcode-cn.com/problems/merge-k-sorted-lists/)
+
+ 合并 k 个排序链表，返回合并后的排序链表。请分析和描述算法的复杂度。
+
+示例:
+```
+输入:
+[
+  1->4->5,
+  1->3->4,
+  2->6
+]
+输出: 1->1->2->3->4->4->5->6
+```
+
+- **分析**
+    1. 像合并两个有序链表一样，依次顺序合并
+        - 时间复杂度：假设每个链表的最长长度是$n$。在第一次合并后，$ans$ 的长度为 $n$；第二次合并后，$ans$ 的长度为 $2\times n$，第 $i$ 次合并后，$ans$ 的长度为 $i\times n$。第 $i$ 次合并的时间代价是 $O(n + (i - 1) \times n) = O(i \times n)$，那么总的时间代价为 $O(\sum_{i = 1}^{k} (i \times n)) = O(\frac{(1 + k)\cdot k}{2} \times n) = O(k^2 n)$，故渐进时间复杂度为 $O(k^2 n)$。
+        - 空间复杂度：除了ans之外没有额外空间
+    2. 分治，和归并排序类似，两两合并
+        - 时间复杂度：考虑递归「向上回升」的过程——第一轮合并 $\frac{k}{2}$组链表，每一组的时间代价是 $O(2n)$；第二轮合并 $\frac{k}{4}$组链表，每一组的时间代价是 $O(4n)$...所以总的时间代价是 $O(\sum_{i = 1}^{\log k} \frac{k}{2^i} \times 2^i n) = O(kn \times \log k)$，故渐进时间复杂度为 $O(kn \times \log k)$O
+        - 空间复杂度：递归会使用到 $O(\log k)$空间代价的栈空间。
+
+- **算法实现**
+这里实现第二种思路，复杂度已经分析过了
+```python
+class Solution:
+    def mergeKLists(self, lists: List[ListNode]) -> ListNode:
+        if not lists:
+            return None
+        if len(lists) == 1:
+            return lists[0]
+        left = lists[0:len(lists)//2]
+        right = lists[len(lists)//2:]
+
+        def helper(l1, l2):
+            node = ListNode(0)
+            p = node
+            while l1 and l2:
+                # print(p)
+                if l1.val > l2.val:
+
+                    node.next = l2
+                    node = node.next
+                    l2 = l2.next
+                else:
+                    node.next = l1
+                    node = node.next
+                    l1 = l1.next
+            if l1:
+                node.next = l1
+            else:
+                node.next = l2
+            # print(p.next)
+            return p.next
+        return helper(self.mergeKLists(left), self.mergeKLists(right))
 ```
