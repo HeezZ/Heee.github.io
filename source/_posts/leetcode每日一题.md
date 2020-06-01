@@ -836,3 +836,62 @@ class Solution:
 - **算法分析**
     - 时间复杂度：$O(n\log (n))$
     - 空间复杂度：$O(1)$
+
+#### 4.29 山脉数组中查找目标值
+
+[leetcode 1095. 山脉数组中查找目标值](https://leetcode-cn.com/problems/find-in-mountain-array/)
+
+此题题目较长，且较为简单，故只给出链接
+
+- **分析**
+二分查找，先二分查找找出最高点，然后在最高点的左右两边分别二分查找即可，与旋转数组查找类似
+
+- **算法实现**
+```python
+class Solution:
+    def findInMountainArray(self, target: int, mountain_arr: 'MountainArray') -> int:
+        length = mountain_arr.length()
+        # left,right = 0, length - 1
+        def search_top(left, right):
+            while left<=right:
+                mid = (left + right) >> 1
+                if mountain_arr.get(mid)<mountain_arr.get(mid + 1):
+                    left = mid + 1
+                else:
+                    right = mid - 1
+            return left
+
+        def search_target(left, right, up):
+            while left <= right:
+                mid = (left + right) >> 1
+                if mountain_arr.get(mid) > target:
+                    if up:
+                        right = mid - 1
+                    else:
+                        left = mid + 1
+                elif mountain_arr.get(mid) < target:
+                    if up:
+                        left = mid + 1
+                    else:
+                        right = mid - 1
+                else:
+                    return mid
+            return -1
+
+        top = search_top(0, length -1)
+        res = -1
+        if mountain_arr.get(top) < target:
+            return -1
+        if mountain_arr.get(0)<=target:
+            res = search_target(0,top,True)
+        if res != -1:
+            return res
+        if mountain_arr.get(length-1)<=target:
+            res = search_target(top,length-1,False)
+        if res != -1:
+            return res
+        return -1
+```
+- **算法分析**
+    - 时间复杂度：$O(\log n)$，只用了三次二分查找
+    - 空间复杂度：$O(1)$

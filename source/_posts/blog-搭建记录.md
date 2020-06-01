@@ -215,11 +215,16 @@ tags: 环境搭建
     //  em: /^\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/,
     em: /^\*((?:\*\*|[\s\S])+?)\*(?!\*)/
     ```
-3. 在主题中打开mathjax，进入到主题目录，找到_config.yml配置问题，把mathjax默认的false修改为true，具体如下：
+    **注**：这一步未执行，暂时没有遇到问题
+3. 在主题中打开mathjax：进入到主题目录，找到_config.yml配置问题，把mathjax默认的false修改为true，具体如下：
     ```
     mathjax:
       enable: true
       per_page: true
+    ```
+    **注**：yilia中若作此修改，则智能菜单栏会出现问题，如“所有文章”不能显示文章，故仅作如下修改：
+    ```
+    mathjax: true
     ```
 4. 在文章的Front-matter里打开mathjax开关
     ```
