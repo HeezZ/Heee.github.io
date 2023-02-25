@@ -43,7 +43,7 @@ show_all_link: '展开全文'
 # 数学公式
 mathjax: true
   # enable: true
-  # per_page: true
+  # per_page: false
 # 是否在新窗口打开链接
 open_in_new: false
 
