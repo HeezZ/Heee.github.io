@@ -4,6 +4,6 @@ db.json
 *.log
 node_modules/
 public/
-# .deploy*/
+.deploy*/
 ./vscode
 package-lock.json
